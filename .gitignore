@@ -44,3 +44,8 @@ Thumbs.db
 .github/instructions/nx.instructions.md
 
 test-output
+
+.vscode
+.env
+data/*
+!data/.gitkeep
