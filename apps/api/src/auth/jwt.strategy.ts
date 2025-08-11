@@ -1,19 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { type RequestUser, type JWTPayload } from "@task-manager/data";
-import { Strategy, ExtractJwt } from "passport-jwt";
+import { ExtractJwt, Strategy } from "passport-jwt";
 
-/**
- * JwtStrategy used by the auth service itself when guarding routes inside auth
- * (not used by other services). It validates tokens signed with the same secret.
- */
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
       secretOrKey: process.env.JWT_SECRET || "dev_secret",
+      ignoreExpiration: false,
     });
   }
 

@@ -4,22 +4,18 @@ import { InjectRepository } from "@nestjs/typeorm";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
 import { User } from "./entities/user.entity";
+import { type JWTPayload } from "@task-manager/data";
 
-/**
- * AuthService: responsible for register/login and JWT creation.
- * The API app will not call DB here — it will call auth service for login,
- * and will verify tokens locally using the same JWT_SECRET.
- */
 @Injectable()
 export class AuthService {
+  // -----------------------------------------------------------------------------------------------
   constructor(
     @InjectRepository(User) private usersRepo: Repository<User>,
     private jwt: JwtService
   ) {}
 
-  /**
-   * Register a new user. Throws if email exists.
-   */
+  // -----------------------------------------------------------------------------------------------
+  // Register a new user. Throws if email exists.
   async register(email: string, password: string, displayName?: string) {
     const existing = await this.usersRepo.findOne({ where: { email } });
     if (existing) throw new ConflictException("Email already registered");
@@ -31,10 +27,8 @@ export class AuthService {
     return this.usersRepo.save(user);
   }
 
-  /**
-   * Validate credentials and return a minimal public user object
-   * (no password hash).
-   */
+  // -----------------------------------------------------------------------------------------------
+  // Validate credentials and return a minimal public user object (without password hash).
   async validateUser(email: string, password: string) {
     const user = await this.usersRepo.findOne({ where: { email } });
     if (!user) return null;
@@ -47,15 +41,23 @@ export class AuthService {
     return rest as { id: string; email: string; displayName?: string };
   }
 
-  /**
-   * Create a JWT for a validated user.
-   */
+  // -----------------------------------------------------------------------------------------------
+  // Create a JWT for a validated user.
   async login(user: { id: string; email: string; displayName?: string }) {
-    const payload = { sub: user.id, email: user.email, name: user.displayName };
+    const payload: JWTPayload = {
+      sub: user.id,
+      email: user.email,
+      displayName: user.displayName,
+    };
+
     return { access_token: this.jwt.sign(payload) };
   }
 
+  // -----------------------------------------------------------------------------------------------
+  // Find user by id
   async findById(id: string) {
     return this.usersRepo.findOne({ where: { id } });
   }
+
+  // -----------------------------------------------------------------------------------------------
 }

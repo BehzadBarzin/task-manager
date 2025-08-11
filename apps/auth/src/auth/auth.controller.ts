@@ -9,8 +9,10 @@ import { RegisterResponseDto } from "./dtos/register-response.dto";
 @ApiTags("auth")
 @Controller("auth")
 export class AuthController {
+  // -----------------------------------------------------------------------------------------------
   constructor(private auth: AuthService) {}
 
+  // -----------------------------------------------------------------------------------------------
   // POST /auth/register
   @Post("register")
   @ApiBody({ type: RegisterDto })
@@ -40,6 +42,7 @@ export class AuthController {
     }
   }
 
+  // -----------------------------------------------------------------------------------------------
   // POST /auth/login
   @Post("login")
   @ApiBody({ type: LoginDto })
@@ -55,4 +58,6 @@ export class AuthController {
 
     return this.auth.login(user);
   }
+
+  // -----------------------------------------------------------------------------------------------
 }
