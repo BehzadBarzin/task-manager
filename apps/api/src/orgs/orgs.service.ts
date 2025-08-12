@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Organization } from "./entities/org.entity";
 import { Repository } from "typeorm";
@@ -28,6 +28,17 @@ export class OrgsService {
     await this.membershipRepo.save(membership);
 
     return { org: saved, ownerMembership: membership };
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Get single organization by id
+  async getOrg(orgId: string) {
+    const org = await this.orgRepo.findOne({ where: { id: orgId } });
+    if (!org) {
+      throw new NotFoundException("Organization not found");
+    }
+
+    return org;
   }
 
   // -----------------------------------------------------------------------------------------------

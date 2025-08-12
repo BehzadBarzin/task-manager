@@ -62,6 +62,16 @@ export class OrgsController {
   }
 
   // -----------------------------------------------------------------------------------------------
+  // GET /orgs/:orgId -> get single organization by id
+  @Get(":orgId")
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 200, type: CreateOrgResponseDto })
+  @ApiBearerAuth()
+  async getOrg(@Param("orgId") orgId: string): Promise<CreateOrgResponseDto> {
+    return this.orgs.getOrg(orgId);
+  }
+
+  // -----------------------------------------------------------------------------------------------
   // POST /orgs/:orgId/members -> add member to organization
   @Post(":orgId/members")
   @UseGuards(JwtAuthGuard, OrgRolesGuard) // Apply authentication (JwtAuthGuard) & authorization (OrgRolesGuard)
