@@ -49,3 +49,6 @@ test-output
 .env
 data/*
 !data/.gitkeep
+
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
