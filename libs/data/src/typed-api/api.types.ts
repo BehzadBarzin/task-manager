@@ -153,6 +153,8 @@ export interface components {
             createdAt: string;
         };
         UpdateTaskDto: {
+            /** @example edb02073-7032-4674-871c-b4f356447cdf */
+            orgId: string;
             /** @example My Task */
             title?: string;
             /** @example My Task Description */
