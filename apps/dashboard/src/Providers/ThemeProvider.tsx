@@ -38,7 +38,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   // On `theme` value change toggle `dark` class
   React.useEffect(() => {
     useThemeStore.persist.rehydrate();
-    document.documentElement.classList.toggle("dark", theme === "dark");
+    document.querySelector("#root")!.classList.toggle("dark", theme === "dark");
   }, [theme]);
 
   // Render children
