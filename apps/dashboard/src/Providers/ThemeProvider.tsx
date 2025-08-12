@@ -38,7 +38,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   // On `theme` value change toggle `dark` class
   React.useEffect(() => {
     useThemeStore.persist.rehydrate();
-    document.querySelector("#root")!.classList.toggle("dark", theme === "dark");
+    // document.querySelector("#root")!.classList.toggle("dark", theme === "dark");
+    const daisyUITheme = theme === "light" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", daisyUITheme);
   }, [theme]);
 
   // Render children

@@ -53,22 +53,27 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   // -----------------------------------------------------------------------------------------------
   // -----------------------------------------------------------------------------------------------
   return (
-    <div className="flex h-screen bg-background text-foreground">
+    <div className="flex h-screen bg-base-200 text-base-content">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-sidebar transform ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-base-100 transform ${
+          isSidebarOpen
+            ? "translate-x-0 shadow-xl"
+            : "-translate-x-full shadow-none"
         } md:translate-x-0 transition-transform duration-300 ease-in-out`}
       >
-        <nav className="flex flex-col p-4">
+        <div className="p-4 border-b border-base-300">
+          <h1 className="text-xl font-bold">Task Manager</h1>
+        </div>
+        <nav className="flex flex-col p-4 gap-2">
           {navItems.map(
             (item) =>
               item && (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`py-2 ${
-                    location.pathname === item.path ? "text-primary" : ""
+                  className={`btn btn-ghost justify-start ${
+                    location.pathname === item.path ? "btn-active" : ""
                   }`}
                   onClick={() => setIsSidebarOpen(false)}
                 >
@@ -78,26 +83,34 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
           )}
         </nav>
       </aside>
+
       {/* Main */}
       <div className="flex-1 flex flex-col md:ml-64">
         {/* Topbar */}
-        <header className="flex justify-between p-4 bg-topbar">
+        <header className="flex justify-end items-center p-4 bg-base-100 shadow-sm">
           <button
-            className="md:hidden"
+            className="btn btn-square btn-ghost"
+            onClick={toggleTheme}
+            title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+          >
+            {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
+          </button>
+          <button
+            className="btn btn-square btn-ghost"
+            onClick={logout}
+            title="Logout"
+          >
+            <LogOut size={20} />
+          </button>
+
+          <button
+            className="md:hidden btn btn-square btn-ghost"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           >
-            {isSidebarOpen ? <X /> : <Menu />}
+            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-          <div className="flex items-center">
-            <button onClick={toggleTheme}>
-              {theme === "light" ? <Moon /> : <Sun />}
-            </button>
-            <button onClick={logout}>
-              <LogOut />
-            </button>
-          </div>
         </header>
-        <main className="flex-1 p-4 overflow-auto">{children}</main>
+        <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
       </div>
     </div>
   );

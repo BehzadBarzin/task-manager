@@ -206,31 +206,78 @@ const Tasks: React.FC = () => {
   // -----------------------------------------------------------------------------------------------
   // -----------------------------------------------------------------------------------------------
   return (
-    <div>
-      <h1>Tasks for Organization: {org?.name || orgId}</h1>
-      {/* If user is not a viewer, show create task form */}
-      {role !== "viewer" && (
-        <form onSubmit={handleSubmit(onCreate)}>
-          <input {...register("title")} placeholder="Title" />
-          <input {...register("description")} placeholder="Description" />
-          <input {...register("assigneeId")} placeholder="Assignee ID" />
-          <button type="submit">Create Task</button>
-        </form>
-      )}
-      {/* Drag and drop Tasks */}
-      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <div className="flex">
-          {columns.map((col) => (
-            <Column
-              key={col}
-              id={col}
-              tasks={groupedTasks[col]}
-              role={role}
-              onDelete={(id) => deleteMutation.mutate(id)}
-            />
-          ))}
-        </div>
-      </DndContext>
+    <div className="mx-auto">
+      <div className="bg-base-100 rounded-box shadow-xl p-6 mb-6">
+        <h1 className="text-2xl font-bold mb-6">
+          Tasks for Organization:{" "}
+          <span className="kbd">{org?.name || orgId}</span>
+        </h1>
+
+        {/* Create Task Form */}
+        {role !== "viewer" && (
+          <div className="bg-base-200 rounded-box p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4">Create New Task</h2>
+            <form
+              onSubmit={handleSubmit(onCreate)}
+              className="grid grid-cols-1 md:grid-cols-4 gap-4"
+            >
+              <div className="md:col-span-2">
+                <input
+                  {...register("title")}
+                  placeholder="Task Title"
+                  className="input input-bordered w-full"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <input
+                  {...register("assigneeId")}
+                  placeholder="Assignee ID"
+                  className="input input-bordered w-full"
+                />
+              </div>
+              <div className="md:col-span-3">
+                <input
+                  {...register("description")}
+                  placeholder="Description"
+                  className="input input-bordered w-full"
+                />
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  className="btn btn-primary w-full"
+                  disabled={createMutation.isPending}
+                >
+                  {createMutation.isPending ? (
+                    <span className="loading loading-spinner loading-xs"></span>
+                  ) : (
+                    "Create"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Drag and drop Tasks */}
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="flex flex-col md:flex-row gap-4">
+            {columns.map((col) => (
+              <Column
+                key={col}
+                id={col}
+                tasks={groupedTasks[col]}
+                role={role}
+                onDelete={(id) => deleteMutation.mutate(id)}
+              />
+            ))}
+          </div>
+        </DndContext>
+      </div>
     </div>
   );
 };
@@ -249,16 +296,28 @@ const Column: React.FC<{
   const { setNodeRef } = useDroppable({ id, data: { column: id } });
 
   return (
-    <div ref={setNodeRef} className="w-1/3 p-2">
-      <h2>{id.toUpperCase().replace("_", " ")}</h2>
-      <SortableContext
-        items={tasks.map((t) => t.id)}
-        strategy={verticalListSortingStrategy}
-      >
-        {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} role={role} onDelete={onDelete} />
-        ))}
-      </SortableContext>
+    <div ref={setNodeRef} className="flex-1">
+      <div className="bg-base-200 rounded-lg p-4 mb-4">
+        <h2 className="text-lg font-semibold text-center">
+          {id.charAt(0).toUpperCase() + id.slice(1).replace("_", " ")}
+          <span className="badge badge-neutral ml-2">{tasks.length}</span>
+        </h2>
+      </div>
+      <div className="space-y-3 min-h-[100px]">
+        <SortableContext
+          items={tasks.map((t) => t.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {tasks.map((task) => (
+            <TaskCard
+              key={task.id}
+              task={task}
+              role={role}
+              onDelete={onDelete}
+            />
+          ))}
+        </SortableContext>
+      </div>
     </div>
   );
 };
@@ -281,29 +340,76 @@ export const TaskCard: React.FC<{
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes} // keep attributes for accessibility
-      className="p-2 border mb-2 flex flex-col gap-2"
+      {...attributes}
+      className="card bg-base-100 shadow-md mb-3 transition-all duration-200 hover:shadow-lg"
     >
-      {/* Drag handle — only this part starts dragging */}
-      <div {...listeners} className="cursor-grab select-none bg-gray-100 p-1">
-        <h3>{task.title}</h3>
-      </div>
-
-      <p>{task.description}</p>
-      {task.assigneeId && <p>Assignee: {task.assigneeId}</p>}
-      <p>Status: {task.status.toUpperCase().replace("_", " ")}</p>
-
-      {(role === "owner" || role === "admin") && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(task.id);
-          }}
-          className="bg-red-500 text-white px-2 py-1 rounded"
+      <div className="card-body p-4">
+        {/* Drag handle */}
+        <div
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing select-none flex items-center gap-2 pb-2 border-b border-base-200"
         >
-          Delete
-        </button>
-      )}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="w-5 h-5 opacity-50"
+          >
+            <path
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 9h16M4 15h16"
+            ></path>
+          </svg>
+          <h3 className="card-title text-lg m-0 flex-1">{task.title}</h3>
+        </div>
+
+        {task.description && (
+          <p className="text-base-content/80 py-2">{task.description}</p>
+        )}
+
+        <div className="flex flex-wrap gap-2 mt-2">
+          {task.assigneeId && (
+            <div className="badge badge-outline gap-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                className="w-3 h-3"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                ></path>
+              </svg>
+              {task.assigneeId.substring(0, 8)}...
+            </div>
+          )}
+          <div className="badge badge-ghost">
+            {task.status.charAt(0).toUpperCase() +
+              task.status.slice(1).replace("_", " ")}
+          </div>
+        </div>
+
+        {(role === "owner" || role === "admin") && (
+          <div className="card-actions justify-end mt-3 pt-3 border-t border-base-200">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(task.id);
+              }}
+              className="btn btn-error btn-xs"
+            >
+              Delete
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -55,31 +55,87 @@ const Login: React.FC = () => {
   // -----------------------------------------------------------------------------------------------
   // -----------------------------------------------------------------------------------------------
   return (
-    <div className="flex items-center justify-center h-screen">
-      <form onSubmit={handleSubmit(onSubmit)} className="p-4 border rounded">
-        {/* Email input */}
-        <input {...register("email")} placeholder="Email" />
-        {errors.email && <p>{errors.email.message}</p>}
-        {/* Password input */}
-        <input
-          type="password"
-          {...register("password")}
-          placeholder="Password"
-        />
-        {errors.password && <p>{errors.password.message}</p>}
-        {/* Submit button */}
-        <button type="submit" disabled={isSubmitting}>
-          Login
-        </button>
-      </form>
+    <div className="min-h-screen flex items-center justify-center bg-base-200 p-4">
+      <div className="card bg-base-100 shadow-xl w-full max-w-md">
+        <div className="card-body">
+          <h2 className="mx-auto card-title text-2xl font-bold text-center mb-2">
+            Login to Your Account
+          </h2>
+          <p className="mx-auto text-center text-base-content/70 mb-6">
+            Enter your credentials to continue
+          </p>
 
-      {/* Register link */}
-      <p>
-        Don&apos;t have an account?{" "}
-        <Link to="/register" className="underline">
-          Register
-        </Link>
-      </p>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Email Address</span>
+              </label>
+              <input
+                {...register("email")}
+                type="email"
+                placeholder="email@example.com"
+                className={`input input-bordered w-full ${
+                  errors.email ? "input-error" : ""
+                }`}
+              />
+              {errors.email && (
+                <label className="label">
+                  <span className="label-text-alt text-error">
+                    {errors.email.message}
+                  </span>
+                </label>
+              )}
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Password</span>
+              </label>
+              <input
+                type="password"
+                {...register("password")}
+                placeholder="••••••••"
+                className={`input input-bordered w-full ${
+                  errors.password ? "input-error" : ""
+                }`}
+              />
+              {errors.password && (
+                <label className="label">
+                  <span className="label-text-alt text-error">
+                    {errors.password.message}
+                  </span>
+                </label>
+              )}
+            </div>
+
+            <div className="form-control mt-6">
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="loading loading-spinner"></span>
+                    Logging in...
+                  </>
+                ) : (
+                  "Login"
+                )}
+              </button>
+            </div>
+          </form>
+
+          <div className="divider my-6">OR</div>
+
+          <p className="text-center">
+            Don&apos;t have an account?{" "}
+            <Link to="/register" className="link link-primary">
+              Register now
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
