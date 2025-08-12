@@ -48,6 +48,20 @@ export class OrgsController {
   }
 
   // -----------------------------------------------------------------------------------------------
+  // GET /orgs → get all organizations for the current user
+  @Get()
+  @UseGuards(JwtAuthGuard) // Only apply authentication (not authorization)
+  @ApiResponse({ status: 200, type: [CreateOrgResponseDto] })
+  @ApiBearerAuth()
+  async getOrgs(
+    @CurrentUser() user: RequestUser
+  ): Promise<CreateOrgResponseDto[]> {
+    const orgs = await this.orgs.listOrgs(user.id);
+
+    return orgs;
+  }
+
+  // -----------------------------------------------------------------------------------------------
   // POST /orgs/:orgId/members -> add member to organization
   @Post(":orgId/members")
   @UseGuards(JwtAuthGuard, OrgRolesGuard) // Apply authentication (JwtAuthGuard) & authorization (OrgRolesGuard)

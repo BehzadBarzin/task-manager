@@ -3,8 +3,11 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from "typeorm";
 import { Role } from "../enums/roles.enum";
+import { Organization } from "./org.entity";
 
 @Entity("memberships")
 export class Membership {
@@ -26,4 +29,9 @@ export class Membership {
 
   @CreateDateColumn()
   addedAt: Date;
+
+  // Relations
+  @ManyToOne(() => Organization, { eager: false, nullable: false })
+  @JoinColumn({ name: "orgId" })
+  organization: Organization;
 }

@@ -59,7 +59,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: operations["OrgsController_getOrgs"];
         put?: never;
         post: operations["OrgsController_createOrg"];
         delete?: never;
@@ -110,9 +110,9 @@ export interface components {
             /** @example My Task */
             title: string;
             /** @example My Task Description */
-            description: string;
+            description?: string;
             /** @example edb02073-7032-4674-871c-b4f356447cdf */
-            assigneeId: string;
+            assigneeId?: string;
         };
         TaskResponseDto: {
             /** @example edb02073-7032-4674-871c-b4f356447cdf */
@@ -138,11 +138,16 @@ export interface components {
         };
         UpdateTaskDto: {
             /** @example My Task */
-            title: string;
+            title?: string;
             /** @example My Task Description */
-            description: string;
+            description?: string;
             /** @example edb02073-7032-4674-871c-b4f356447cdf */
-            assigneeId: string;
+            assigneeId?: string;
+            /**
+             * @example completed
+             * @enum {string}
+             */
+            status?: "pending" | "in_progress" | "completed";
         };
         CreateOrgDto: {
             /** @example My Org */
@@ -301,6 +306,25 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    OrgsController_getOrgs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateOrgResponseDto"][];
+                };
             };
         };
     };

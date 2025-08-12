@@ -31,6 +31,16 @@ export class OrgsService {
   }
 
   // -----------------------------------------------------------------------------------------------
+  // Get a list of all organizations for a user
+  async listOrgs(userId: string) {
+    const memberships = await this.membershipRepo.find({
+      where: { userId },
+      relations: ["organization"],
+    });
+
+    return memberships.map((m) => m.organization);
+  }
+  // -----------------------------------------------------------------------------------------------
   // Add a member to an organization
   async addMember(orgId: string, userId: string, role: Role) {
     const existing = await this.membershipRepo.findOne({
