@@ -95,7 +95,8 @@ export class TasksController {
   @ApiBearerAuth()
   async remove(
     @CurrentUser() user: RequestUser,
-    @Param("id") id: string
+    @Param("id") id: string,
+    @Query("orgId") orgId: string // OrgRolesGuard needs an orgId in either body, query, or params to perform RBAC
   ): Promise<TaskResponseDto> {
     const removed = await this.tasks.remove(id);
 

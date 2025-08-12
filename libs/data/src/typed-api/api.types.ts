@@ -289,7 +289,9 @@ export interface operations {
     };
     TasksController_remove: {
         parameters: {
-            query?: never;
+            query: {
+                orgId: string;
+            };
             header?: never;
             path: {
                 id: string;
