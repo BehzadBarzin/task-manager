@@ -44,7 +44,7 @@ export class AuthService {
   // -----------------------------------------------------------------------------------------------
   // Create a JWT for a validated user.
   async login(user: { id: string; email: string; displayName?: string }) {
-    const payload: JWTPayload = {
+    const payload: Partial<JWTPayload> = {
       sub: user.id,
       email: user.email,
       displayName: user.displayName,
