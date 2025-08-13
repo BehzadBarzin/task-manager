@@ -5,18 +5,8 @@ import { useApiClient } from "../../api/api.js";
 import { apiTypes } from "@task-manager/data";
 
 // -------------------------------------------------------------------------------------------------
-interface AuditLog {
-  id: string;
-  orgId: string;
-  actorId: string;
-  action: string;
-  targetId?: string;
-  meta?: any;
-  createdAt: Date;
-}
-
-type CreateOrgResponseDto =
-  apiTypes.components["schemas"]["CreateOrgResponseDto"];
+type AuditResponseDto = apiTypes.components["schemas"]["AuditResponseDto"];
+type OrgResponseDto = apiTypes.components["schemas"]["OrgResponseDto"];
 
 // -------------------------------------------------------------------------------------------------
 const AuditLogs: React.FC = () => {
@@ -29,11 +19,11 @@ const AuditLogs: React.FC = () => {
   const role = useRole(orgId);
   // -----------------------------------------------------------------------------------------------
   // Get audit logs for organization from API
-  const { data: logs, isLoading } = useQuery<AuditLog[]>({
+  const { data: logs, isLoading } = useQuery<AuditResponseDto[]>({
     queryKey: ["audit", orgId],
     queryFn: async () => {
-      const { data } = await apiClient.GET("/audit-logs", {
-        params: { query: { orgId: orgId! } },
+      const { data } = await apiClient.GET("/orgs/{orgId}/audit-logs", {
+        params: { path: { orgId: orgId! } },
       });
 
       if (!data) return [];
@@ -43,7 +33,7 @@ const AuditLogs: React.FC = () => {
   });
   // -----------------------------------------------------------------------------------------------
   // Get organization details from API
-  const { data: org } = useQuery<CreateOrgResponseDto>({
+  const { data: org } = useQuery<OrgResponseDto>({
     queryKey: ["orgs", orgId],
     queryFn: async () => {
       const { data } = await apiClient.GET("/orgs/{orgId}", {
@@ -84,7 +74,7 @@ const AuditLogs: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {logs.map((log: AuditLog) => (
+                {logs.map((log: AuditResponseDto) => (
                   <tr key={log.id} className="hover">
                     <td className="whitespace-nowrap">
                       {new Date(log.createdAt).toLocaleString()}

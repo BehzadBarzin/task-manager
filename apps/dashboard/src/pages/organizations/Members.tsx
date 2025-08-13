@@ -10,8 +10,7 @@ import { useApiClient } from "../../api/api";
 // -------------------------------------------------------------------------------------------------
 type Membership = apiTypes.components["schemas"]["MembershipResponseDto"];
 type AddMemberDto = apiTypes.components["schemas"]["AddMemberDto"];
-type CreateOrgResponseDto =
-  apiTypes.components["schemas"]["CreateOrgResponseDto"];
+type OrgResponseDto = apiTypes.components["schemas"]["OrgResponseDto"];
 
 // -------------------------------------------------------------------------------------------------
 const addSchema = z.object({
@@ -33,7 +32,7 @@ const Members: React.FC = () => {
   const queryClient = useQueryClient();
   // -----------------------------------------------------------------------------------------------
   // Get organization details from API
-  const { data: org } = useQuery<CreateOrgResponseDto>({
+  const { data: org } = useQuery<OrgResponseDto>({
     queryKey: ["orgs", orgId],
     queryFn: async () => {
       const { data } = await apiClient.GET("/orgs/{orgId}", {
@@ -74,6 +73,7 @@ const Members: React.FC = () => {
     // Invalidate members query to update UI with new member
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["members", orgId] });
+      queryClient.invalidateQueries({ queryKey: ["audit", orgId] });
     },
   });
 

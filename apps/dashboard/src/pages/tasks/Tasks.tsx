@@ -20,8 +20,7 @@ type CreateTaskDto = apiTypes.components["schemas"]["CreateTaskDto"];
 type CreateTaskFromData = Omit<CreateTaskDto, "orgId">;
 
 type UpdateTaskDto = apiTypes.components["schemas"]["UpdateTaskDto"];
-type CreateOrgResponseDto =
-  apiTypes.components["schemas"]["CreateOrgResponseDto"];
+type OrgResponseDto = apiTypes.components["schemas"]["OrgResponseDto"];
 
 // -------------------------------------------------------------------------------------------------
 const columns = ["pending", "in_progress", "completed"] as const;
@@ -49,7 +48,7 @@ const Tasks: React.FC = () => {
   const queryClient = useQueryClient();
   // -----------------------------------------------------------------------------------------------
   // Get organization details from API
-  const { data: org } = useQuery<CreateOrgResponseDto>({
+  const { data: org } = useQuery<OrgResponseDto>({
     queryKey: ["orgs", orgId],
     queryFn: async () => {
       const { data } = await apiClient.GET("/orgs/{orgId}", {
@@ -68,8 +67,8 @@ const Tasks: React.FC = () => {
   const { data: tasks, isLoading } = useQuery<Task[]>({
     queryKey: ["tasks", orgId],
     queryFn: async () => {
-      const { data } = await apiClient.GET("/tasks", {
-        params: { query: { orgId: orgId! } },
+      const { data } = await apiClient.GET("/orgs/{orgId}/tasks", {
+        params: { path: { orgId: orgId! } },
       });
 
       if (!data) return [];
@@ -81,19 +80,10 @@ const Tasks: React.FC = () => {
   // -----------------------------------------------------------------------------------------------
   // Update task using API
   const updateMutation = useMutation({
-    mutationFn: async ({
-      id,
-      body,
-    }: {
-      id: string;
-      body: Omit<UpdateTaskDto, "orgId">;
-    }) => {
-      const { data } = await apiClient.PUT("/tasks/{id}", {
-        params: { path: { id } },
-        body: {
-          ...body,
-          orgId: orgId!,
-        },
+    mutationFn: async ({ id, body }: { id: string; body: UpdateTaskDto }) => {
+      const { data } = await apiClient.PUT("/orgs/{orgId}/tasks/{id}", {
+        params: { path: { orgId: orgId!, id } },
+        body,
       });
 
       return data;
@@ -123,6 +113,7 @@ const Tasks: React.FC = () => {
     // Always invalidate query data to refetch after error or success
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks", orgId] });
+      queryClient.invalidateQueries({ queryKey: ["audit", orgId] });
     },
   });
 
@@ -130,17 +121,16 @@ const Tasks: React.FC = () => {
   // Create task using API
   const createMutation = useMutation({
     mutationFn: async (body: CreateTaskFromData) => {
-      const { data } = await apiClient.POST("/tasks", {
-        body: {
-          ...body,
-          orgId: orgId!,
-        },
+      const { data } = await apiClient.POST("/orgs/{orgId}/tasks", {
+        params: { path: { orgId: orgId! } },
+        body,
       });
 
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks", orgId] });
+      queryClient.invalidateQueries({ queryKey: ["audit", orgId] });
     },
   });
 
@@ -148,13 +138,14 @@ const Tasks: React.FC = () => {
   // Delete task using API
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await apiClient.DELETE("/tasks/{id}", {
-        params: { path: { id }, query: { orgId: orgId! } },
+      const { data } = await apiClient.DELETE("/orgs/{orgId}/tasks/{id}", {
+        params: { path: { id, orgId: orgId! } },
       });
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks", orgId] });
+      queryClient.invalidateQueries({ queryKey: ["audit", orgId] });
     },
   });
 

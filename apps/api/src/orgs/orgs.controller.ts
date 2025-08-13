@@ -17,7 +17,7 @@ import { CreateOrgDto } from "./dtos/create-org.dto";
 import { ApiBearerAuth, ApiBody, ApiResponse } from "@nestjs/swagger";
 import { Role } from "./enums/roles.enum";
 import { AddMemberDto } from "./dtos/add-member.dto";
-import { CreateOrgResponseDto } from "./dtos/create-org-response.dto";
+import { OrgResponseDto } from "./dtos/org-response.dto";
 import { MembershipResponseDto } from "./dtos/membership-response.dto";
 import { type RequestUser } from "@task-manager/data";
 
@@ -31,12 +31,12 @@ export class OrgsController {
   @Post()
   @UseGuards(JwtAuthGuard) // Only apply authentication (not authorization)
   @ApiBody({ type: CreateOrgDto })
-  @ApiResponse({ status: 201, type: CreateOrgResponseDto })
+  @ApiResponse({ status: 201, type: OrgResponseDto })
   @ApiBearerAuth()
   async createOrg(
     @CurrentUser() user: RequestUser, // Retrieve the user from the request (attached by `JwtAuthGuard`)
     @Body() body: CreateOrgDto
-  ): Promise<CreateOrgResponseDto> {
+  ): Promise<OrgResponseDto> {
     const { org } = await this.orgs.createOrg(body.name, user.id);
 
     // audit: org created
@@ -51,11 +51,9 @@ export class OrgsController {
   // GET /orgs → get all organizations for the current user
   @Get()
   @UseGuards(JwtAuthGuard) // Only apply authentication (not authorization)
-  @ApiResponse({ status: 200, type: [CreateOrgResponseDto] })
+  @ApiResponse({ status: 200, type: [OrgResponseDto] })
   @ApiBearerAuth()
-  async getOrgs(
-    @CurrentUser() user: RequestUser
-  ): Promise<CreateOrgResponseDto[]> {
+  async getOrgs(@CurrentUser() user: RequestUser): Promise<OrgResponseDto[]> {
     const orgs = await this.orgs.listOrgs(user.id);
 
     return orgs;
@@ -65,9 +63,9 @@ export class OrgsController {
   // GET /orgs/:orgId -> get single organization by id
   @Get(":orgId")
   @UseGuards(JwtAuthGuard)
-  @ApiResponse({ status: 200, type: CreateOrgResponseDto })
+  @ApiResponse({ status: 200, type: OrgResponseDto })
   @ApiBearerAuth()
-  async getOrg(@Param("orgId") orgId: string): Promise<CreateOrgResponseDto> {
+  async getOrg(@Param("orgId") orgId: string): Promise<OrgResponseDto> {
     return this.orgs.getOrg(orgId);
   }
 

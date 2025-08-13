@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-    "/tasks": {
+    "/orgs/{orgId}/tasks": {
         parameters: {
             query?: never;
             header?: never;
@@ -20,7 +20,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/tasks/{id}": {
+    "/orgs/{orgId}/tasks/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -36,7 +36,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/audit-logs": {
+    "/orgs/{orgId}/audit-logs": {
         parameters: {
             query?: never;
             header?: never;
@@ -121,8 +121,6 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         CreateTaskDto: {
-            /** @example edb02073-7032-4674-871c-b4f356447cdf */
-            orgId: string;
             /** @example My Task */
             title: string;
             /** @example My Task Description */
@@ -153,8 +151,6 @@ export interface components {
             createdAt: string;
         };
         UpdateTaskDto: {
-            /** @example edb02073-7032-4674-871c-b4f356447cdf */
-            orgId: string;
             /** @example My Task */
             title?: string;
             /** @example My Task Description */
@@ -167,11 +163,30 @@ export interface components {
              */
             status?: "pending" | "in_progress" | "completed";
         };
+        AuditResponseDto: {
+            /** @example edb02073-7032-4674-871c-b4f356447cdf */
+            id: string;
+            /** @example edb02073-7032-4674-871c-b4f356447cdf */
+            orgId: string;
+            /** @example edb02073-7032-4674-871c-b4f356447cdf */
+            actorId: string;
+            /** @example task:update */
+            action: string;
+            /** @example edb02073-7032-4674-871c-b4f356447cdf */
+            targetId?: string;
+            /** @example {"patch":{"status":"in_progress"}} */
+            meta?: Record<string, never>;
+            /**
+             * Format: date-time
+             * @example 2022-01-01T00:00:00.000Z
+             */
+            createdAt: string;
+        };
         CreateOrgDto: {
             /** @example My Org */
             name: string;
         };
-        CreateOrgResponseDto: {
+        OrgResponseDto: {
             /** @example edb02073-7032-4674-871c-b4f356447cdf */
             id: string;
             /** @example My Org */
@@ -220,11 +235,11 @@ export type $defs = Record<string, never>;
 export interface operations {
     TasksController_list: {
         parameters: {
-            query: {
+            query?: never;
+            header?: never;
+            path: {
                 orgId: string;
             };
-            header?: never;
-            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -243,7 +258,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                orgId: string;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -268,6 +285,7 @@ export interface operations {
             header?: never;
             path: {
                 id: string;
+                orgId: string;
             };
             cookie?: never;
         };
@@ -289,12 +307,11 @@ export interface operations {
     };
     TasksController_remove: {
         parameters: {
-            query: {
-                orgId: string;
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
+                orgId: string;
             };
             cookie?: never;
         };
@@ -312,11 +329,11 @@ export interface operations {
     };
     AuditController_list: {
         parameters: {
-            query: {
+            query?: never;
+            header?: never;
+            path: {
                 orgId: string;
             };
-            header?: never;
-            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -325,7 +342,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AuditResponseDto"][];
+                };
             };
         };
     };
@@ -343,7 +362,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CreateOrgResponseDto"][];
+                    "application/json": components["schemas"]["OrgResponseDto"][];
                 };
             };
         };
@@ -366,7 +385,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CreateOrgResponseDto"];
+                    "application/json": components["schemas"]["OrgResponseDto"];
                 };
             };
         };
@@ -387,7 +406,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CreateOrgResponseDto"];
+                    "application/json": components["schemas"]["OrgResponseDto"];
                 };
             };
         };

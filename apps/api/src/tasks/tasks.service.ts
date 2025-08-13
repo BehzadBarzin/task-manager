@@ -13,9 +13,10 @@ export class TasksService {
 
   // -----------------------------------------------------------------------------------------------
   // Create a task
-  async create(data: CreateTaskDto) {
+  async create(orgId: string, data: CreateTaskDto) {
     const t = this.repo.create({
       ...data,
+      orgId,
       status: TaskStatus.PENDING,
     });
 

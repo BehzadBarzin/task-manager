@@ -7,7 +7,6 @@ import {
   Param,
   Put,
   Delete,
-  Query,
 } from "@nestjs/common";
 import { TasksService } from "./tasks.service";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
@@ -21,13 +20,15 @@ import { UpdateTaskDto } from "./dtos/update-task.dto";
 import { TaskResponseDto } from "./dtos/task-response.dto";
 import { type RequestUser } from "@task-manager/data";
 
-@Controller("tasks")
+// `OrgRolesGuard` needs an orgId in either body, query, or params to perform RBAC
+// We placed it in the path params for consistency
+@Controller("orgs/:orgId/tasks")
 export class TasksController {
   // -----------------------------------------------------------------------------------------------
   constructor(private tasks: TasksService, private audit: AuditService) {}
 
   // -----------------------------------------------------------------------------------------------
-  // POST /tasks -> create task
+  // POST /orgs/:orgId/tasks -> create task
   @Post()
   @UseGuards(JwtAuthGuard, OrgRolesGuard)
   @Roles(Role.ADMIN, Role.OWNER)
@@ -36,17 +37,17 @@ export class TasksController {
   @ApiBearerAuth()
   async create(
     @CurrentUser() user: RequestUser,
+    @Param("orgId") orgId: string,
     @Body()
     body: CreateTaskDto
   ): Promise<TaskResponseDto> {
-    const created = await this.tasks.create({
-      orgId: body.orgId,
+    const created = await this.tasks.create(orgId, {
       title: body.title,
       description: body.description,
       assigneeId: body.assigneeId,
     });
 
-    await this.audit.log(body.orgId, user.id, "task:create", created.id, {
+    await this.audit.log(orgId, user.id, "task:create", created.id, {
       title: created.title,
     });
 
@@ -54,18 +55,18 @@ export class TasksController {
   }
 
   // -----------------------------------------------------------------------------------------------
-  // GET /tasks?orgId=... -> list tasks
+  // GET /orgs/:orgId/tasks -> list tasks
   @Get()
   @UseGuards(JwtAuthGuard, OrgRolesGuard)
   @Roles(Role.VIEWER, Role.ADMIN, Role.OWNER)
   @ApiResponse({ status: 200, type: [TaskResponseDto] })
   @ApiBearerAuth()
-  async list(@Query("orgId") orgId: string): Promise<TaskResponseDto[]> {
+  async list(@Param("orgId") orgId: string): Promise<TaskResponseDto[]> {
     return this.tasks.listByOrg(orgId);
   }
 
   // -----------------------------------------------------------------------------------------------
-  // PUT /tasks/:id -> update task
+  // PUT /orgs/:orgId/tasks/:id -> update task
   @Put(":id")
   @UseGuards(JwtAuthGuard, OrgRolesGuard)
   @Roles(Role.ADMIN, Role.OWNER)
@@ -75,6 +76,7 @@ export class TasksController {
   async update(
     @CurrentUser() user: RequestUser,
     @Param("id") id: string,
+    @Param("orgId") orgId: string,
     @Body() body: UpdateTaskDto
   ): Promise<TaskResponseDto> {
     const updated = await this.tasks.update(id, body);
@@ -87,7 +89,7 @@ export class TasksController {
   }
 
   // -----------------------------------------------------------------------------------------------
-  // DELETE /tasks/:id
+  // DELETE /orgs/:orgId/tasks/:id
   @Delete(":id")
   @UseGuards(JwtAuthGuard, OrgRolesGuard)
   @Roles(Role.ADMIN, Role.OWNER)
@@ -96,7 +98,7 @@ export class TasksController {
   async remove(
     @CurrentUser() user: RequestUser,
     @Param("id") id: string,
-    @Query("orgId") orgId: string // OrgRolesGuard needs an orgId in either body, query, or params to perform RBAC
+    @Param("orgId") orgId: string
   ): Promise<TaskResponseDto> {
     const removed = await this.tasks.remove(id);
 
