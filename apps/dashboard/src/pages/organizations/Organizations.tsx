@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useApiClient } from "../../api/api";
 
 // -------------------------------------------------------------------------------------------------
-type Org = apiTypes.components["schemas"]["CreateOrgResponseDto"];
+type Org = apiTypes.components["schemas"]["OrgResponseDto"];
 type CreateOrgDto = apiTypes.components["schemas"]["CreateOrgDto"];
 
 // -------------------------------------------------------------------------------------------------
@@ -107,29 +107,11 @@ const Organizations: React.FC = () => {
                 key={org.id}
                 className="card bg-base-200 shadow-md hover:shadow-lg transition-shadow"
               >
-                <div className="card-body">
-                  <h2 className="card-title">{org.name}</h2>
-                  <div className="card-actions justify-end mt-4">
-                    <Link
-                      to={`/orgs/${org.id}/tasks`}
-                      className="btn btn-primary btn-sm"
-                    >
-                      Tasks
-                    </Link>
-                    <Link
-                      to={`/orgs/${org.id}/members`}
-                      className="btn btn-secondary btn-sm"
-                    >
-                      Members
-                    </Link>
-                    <Link
-                      to={`/orgs/${org.id}/audit`}
-                      className="btn btn-accent btn-sm"
-                    >
-                      Audit Logs
-                    </Link>
+                <Link to={`/orgs/${org.id}/tasks`}>
+                  <div className="card-body">
+                    <h2 className="card-title">{org.name}</h2>
                   </div>
-                </div>
+                </Link>
               </div>
             ))}
           </div>
