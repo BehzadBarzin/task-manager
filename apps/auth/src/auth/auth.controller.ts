@@ -1,10 +1,18 @@
-import { Body, Controller, Post, BadRequestException } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Post,
+  BadRequestException,
+  Get,
+  Query,
+} from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { ApiTags, ApiBody, ApiResponse } from "@nestjs/swagger";
+import { ApiTags, ApiBody, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import { RegisterDto } from "./dtos/register.dto";
 import { LoginDto } from "./dtos/login.dto";
 import { LoginResponseDto } from "./dtos/login-response.dto";
-import { RegisterResponseDto } from "./dtos/register-response.dto";
+import { UserResponseDto } from "./dtos/user-response.dto";
+import { SearchUsersDto } from "./dtos/search-user.dto";
 
 @ApiTags("auth")
 @Controller("auth")
@@ -19,9 +27,9 @@ export class AuthController {
   @ApiResponse({
     status: 201,
     description: "Register a new user",
-    type: RegisterResponseDto,
+    type: UserResponseDto,
   })
-  async register(@Body() dto: RegisterDto): Promise<RegisterResponseDto> {
+  async register(@Body() dto: RegisterDto): Promise<UserResponseDto> {
     try {
       const user = await this.auth.register(
         dto.email,
@@ -57,6 +65,21 @@ export class AuthController {
     if (!user) throw new BadRequestException("Invalid credentials");
 
     return this.auth.login(user);
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // GET /auth/search
+  @Get("search")
+  @ApiQuery({ name: "searchTerm", required: true, type: String })
+  @ApiResponse({
+    status: 200,
+    description: "Search users by email or display name",
+    type: [UserResponseDto],
+  })
+  async searchUsers(
+    @Query() query: SearchUsersDto
+  ): Promise<UserResponseDto[]> {
+    return this.auth.searchUsers(query.searchTerm);
   }
 
   // -----------------------------------------------------------------------------------------------

@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRole } from "../../hooks/useRole";
 import type { apiTypes } from "@task-manager/data";
 import { useApiClient } from "../../api/api";
+import UserSearchInput from "../../components/UserSearchInput";
 
 // -------------------------------------------------------------------------------------------------
 type Task = apiTypes.components["schemas"]["TaskResponseDto"];
@@ -151,9 +152,10 @@ const Tasks: React.FC = () => {
 
   // -----------------------------------------------------------------------------------------------
   // Hook Form
-  const { register, handleSubmit } = useForm<CreateTaskFromData>({
-    resolver: zodResolver(createSchema),
-  });
+  const { register, handleSubmit, watch, setValue } =
+    useForm<CreateTaskFromData>({
+      resolver: zodResolver(createSchema),
+    });
 
   // Handle create task form submit
   const onCreate = (data: CreateTaskFromData) => {
@@ -220,10 +222,11 @@ const Tasks: React.FC = () => {
                 />
               </div>
               <div className="md:col-span-2">
-                <input
-                  {...register("assigneeId")}
+                <UserSearchInput
+                  value={watch("assigneeId") || ""}
+                  onChange={(value) => setValue("assigneeId", value)}
                   placeholder="Assignee ID"
-                  className="input input-bordered w-full"
+                  className="w-full"
                 />
               </div>
               <div className="md:col-span-3">

@@ -36,6 +36,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AuthController_searchUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -48,7 +64,7 @@ export interface components {
             /** @example John Doe */
             displayName?: string;
         };
-        RegisterResponseDto: {
+        UserResponseDto: {
             /** @example edb02073-7032-4674-871c-b4f356447cdf */
             id: string;
             /** @example john@example.com */
@@ -99,7 +115,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RegisterResponseDto"];
+                    "application/json": components["schemas"]["UserResponseDto"];
                 };
             };
         };
@@ -124,6 +140,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LoginResponseDto"];
+                };
+            };
+        };
+    };
+    AuthController_searchUsers: {
+        parameters: {
+            query: {
+                searchTerm: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Search users by email or display name */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponseDto"][];
                 };
             };
         };

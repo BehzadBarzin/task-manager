@@ -6,6 +6,7 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRole } from "../../hooks/useRole";
 import { useApiClient } from "../../api/api";
+import UserSearchInput from "../../components/UserSearchInput";
 
 // -------------------------------------------------------------------------------------------------
 type Membership = apiTypes.components["schemas"]["MembershipResponseDto"];
@@ -98,7 +99,7 @@ const Members: React.FC = () => {
 
   // -----------------------------------------------------------------------------------------------
   // Form Hook
-  const { register, handleSubmit } = useForm<AddMemberDto>({
+  const { register, handleSubmit, watch, setValue } = useForm<AddMemberDto>({
     resolver: zodResolver(addSchema),
   });
   // Handle form submit
@@ -127,10 +128,11 @@ const Members: React.FC = () => {
             className="flex flex-col sm:flex-row gap-4"
           >
             <div className="flex-1">
-              <input
-                {...register("userId")}
+              <UserSearchInput
+                value={watch("userId") || ""}
+                onChange={(value) => setValue("userId", value)}
                 placeholder="User ID"
-                className="input input-bordered w-full"
+                className="w-full"
               />
             </div>
             <div>

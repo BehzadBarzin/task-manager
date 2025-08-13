@@ -1,5 +1,5 @@
 import { Injectable, ConflictException } from "@nestjs/common";
-import { Repository } from "typeorm";
+import { Like, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
@@ -57,6 +57,22 @@ export class AuthService {
   // Find user by id
   async findById(id: string) {
     return this.usersRepo.findOne({ where: { id } });
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  async searchUsers(searchTerm: string) {
+    const users = await this.usersRepo.find({
+      where: [
+        { email: Like(`%${searchTerm}%`) },
+        { displayName: Like(`%${searchTerm}%`) },
+      ],
+      take: 10,
+    });
+
+    return users.map((user) => {
+      const { passwordHash, ...rest } = user;
+      return rest;
+    });
   }
 
   // -----------------------------------------------------------------------------------------------
