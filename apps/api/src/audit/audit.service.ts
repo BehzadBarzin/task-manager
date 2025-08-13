@@ -23,12 +23,25 @@ export class AuditService {
 
   // -----------------------------------------------------------------------------------------------
   // List audit logs by organization
-  async listByOrg(orgId: string, limit = 200) {
-    return this.repo.find({
+  async listByOrg(orgId: string, page = 1, limit = 10) {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.repo.findAndCount({
       where: { orgId },
+      skip,
       take: limit,
       order: { createdAt: "DESC" },
     });
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   // -----------------------------------------------------------------------------------------------

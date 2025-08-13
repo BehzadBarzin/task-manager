@@ -182,6 +182,32 @@ export interface components {
              */
             createdAt: string;
         };
+        PaginationMetaDto: {
+            /**
+             * @description Total number of items
+             * @example 42
+             */
+            total: number;
+            /**
+             * @description Current page number
+             * @example 1
+             */
+            page: number;
+            /**
+             * @description Number of items per page
+             * @example 10
+             */
+            limit: number;
+            /**
+             * @description Total number of pages
+             * @example 5
+             */
+            totalPages: number;
+        };
+        PaginatedAuditResponseDto: {
+            data: components["schemas"]["AuditResponseDto"][];
+            meta: components["schemas"]["PaginationMetaDto"];
+        };
         CreateOrgDto: {
             /** @example My Org */
             name: string;
@@ -329,7 +355,12 @@ export interface operations {
     };
     AuditController_list: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Page number (default: 1) */
+                page?: number;
+                /** @description Items per page (default: 10) */
+                limit?: number;
+            };
             header?: never;
             path: {
                 orgId: string;
@@ -343,7 +374,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AuditResponseDto"][];
+                    "application/json": components["schemas"]["PaginatedAuditResponseDto"];
                 };
             };
         };
