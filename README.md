@@ -1,109 +1,213 @@
-# TaskManager
+# Task Manager
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+## NX Monorepo – Full-Stack Application
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+This repository contains a **TypeScript-based NX monorepo** that includes multiple backend and frontend applications along with shared libraries.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## Project Structure
 
-## Generate a library
+```
+.
+├── apps/
+│   ├── api/                        # NestJS backend for main API
+│   ├── auth/                       # NestJS backend for authentication
+│   └── dashboard/                  # React frontend (dashboard UI)
+├── libs/
+│   ├── data/                       # Shared data types & generated OpenAPI types
+│   └── shared-auth/                # Shared NestJS guards & decorators for authentication
+├── tools/
+│   └── generate-openapi-types.js   # Script to generate OpenAPI types & fetch clients
+└── data/                           # SQLite databases
+```
+
+## Domain Overview
+
+### Entities
+
+- `users`: application users (authenticated via apps/auth).
+
+- `organizations`: containers for memberships, tasks, and audit logs.
+
+- `memberships`: relation between users and organizations with role (`owner` | `admin` | `viewer`).
+
+- `tasks`: work items that belong to an organization.
+
+- `audit-logs`: immutable records describing who did what and when in an organization.
+
+### Typical flows
+
+- Create organization: any authenticated user can create an organization; they become `owner`.
+
+- Add members: owners can add members and assign roles.
+
+- Tasks lifecycle: owners/admins create/update/delete tasks; all roles can read tasks.
+
+- Auditing: mutating operations produce audit-log records; logs can be listed (paginated) by owners/admins.
+
+## Tech Stack
+
+### Monorepo & Language
+
+- **NX** – Monorepo management
+- **TypeScript**
+- **npm** – Package manager
+
+### Backend
+
+- **NestJS** – API & authentication services
+- **Swagger/OpenAPI** – API documentation
+- **openapi-typescript** – Generate API types from OpenAPI docs
+- **openapi-fetch** – Fully type-safe fetch clients from generated types
+
+### Frontend
+
+- **React** – SPA dashboard
+- **TailwindCSS** + **DaisyUI** – UI styling
+- **React Router** – Routing
+- **React Query (TanStack Query)** – Data fetching & caching
+- **Zustand** – Persistent state (auth & theme)
+- **zod** & **react-hook-form** – Validated and type-safe form state
+
+### Database
+
+- **SQLite** – Simple local database storage in `data/`
+
+## Feature Highlights
+
+### Type-safe API calls
+
+- `openapi-typescript` generates shared types into `libs/data`.
+
+- `openapi-fetch` creates typed api clients usable by both backend and frontend.
+
+- Run `npm run generate:types` after changing backend Swagger decorators to stay in sync.
+
+### Caching & performance
+
+- React Query caches successful responses to reduce API calls.
+
+- Mutations invalidate relevant queries so data reflect latest server state.
+
+- JWT authentication: the dashboard includes the token on requests; backends validate it.
+
+- RBAC enforced per organization using `libs/shared-auth` Nest guards/decorators.
+
+- UI elements are conditionally rendered based on the current user’s role within the selected organization.
+
+### Reliability & UX
+
+- Expired tokens trigger an automatic logout via Zustand.
+
+- Responsive UI with accessible components (DaisyUI).
+
+- Clear error and loading states integrated with React Query.
+
+- Users can modify a task's status via drag-and-drop (moving task card between columns)
+
+## API Types & Fetch Client Generation
+
+To generate **OpenAPI types** and **fetch clients** for both frontend and backend:
 
 ```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+npm run generate:types
 ```
 
-## Run tasks
-
-To build the library use:
+This runs:
 
 ```sh
-npx nx build pkg1
+node tools/generate-openapi-types.js
 ```
 
-To run any task with Nx use:
+## Authentication & Authorization
+
+- **JWT-based authentication**
+- **Role-Based Access Control (RBAC)** per organization:
+  - **Roles**: `owner` > `admin` > `viewer`
+  - **Hierarchical access**: higher roles inherit lower roles' permissions.
+
+### RBAC Rules
+
+| Action                          | Roles                      |
+| ------------------------------- | -------------------------- |
+| Create task in organization     | `owner`, `admin`           |
+| Get organization tasks          | `owner`, `admin`, `viewer` |
+| Update task                     | `owner`, `admin`           |
+| Delete task                     | `owner`, `admin`           |
+| Create organization             | all authenticated users    |
+| Get single organization         | all authenticated users    |
+| Add member to organization      | `owner`                    |
+| Remove member from organization | `owner`                    |
+| Get organization members        | `owner`, `admin`, `viewer` |
+| Get audit logs of organization  | `owner`, `admin`           |
+
+## Swagger Docs
+
+Online SwaggerUI is provided for all backend services:
+
+- **API Service** → [http://localhost:3000/docs](http://localhost:3000/docs)
+- **Auth Service** → [http://localhost:3001/docs](http://localhost:3001/docs)
+
+## Running the Project
+
+### Clone the repository
 
 ```sh
-npx nx <target> <project-name>
+git clone https://github.com/BehzadBarzin/task-manager
+cd task-manager
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Versioning and releasing
-
-To version and release the library use
-
-```
-npx nx release
-```
-
-Pass `--dry-run` to see what would happen without actually releasing the library.
-
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Keep TypeScript project references up to date
-
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
-
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
+### Install dependencies
 
 ```sh
-npx nx sync
+npm install
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+### Setup environment variables
+
+Copy `.env-example` to `.env` in the **root** folder and modify as needed.
 
 ```sh
-npx nx sync:check
+cp .env-example .env
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
-
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
+For the **frontend**:
 
 ```sh
-npx nx connect
+cp apps/dashboard/.env-example apps/dashboard/.env
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
+### Start all apps
 
 ```sh
-npx nx g ci-workflow
+npm start
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- This runs:
 
-## Install Nx Console
+  ```sh
+  nx run-many --target=serve --all --parallel
+  ```
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+## Development Notes
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- After modifying backend APIs, **update Swagger decorators** if needed and re-generate types:
 
-## Useful links
+  ```sh
+  npm run generate:types
+  ```
 
-Learn more:
+## UI Features
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- The **UI** is fully responsive and role-restricted.
+- **Tasks page** supports drag-and-drop.
+- **Audit logs** are paginated.
+- Data fetching, retry, and caching is handled via React Query (TanStack Query).
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Features Summary
+
+- **Multi-app NX monorepo** with backend + frontend
+- **Type-safe API communication** via OpenAPI and type generation
+- **RBAC** with hierarchical roles
+- **Persistent auth & theme state**
+- **Responsive UI** with Tailwind & DaisyUI
+- **Drag-and-drop tasks** and **paginated audit logs**
