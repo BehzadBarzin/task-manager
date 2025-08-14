@@ -12,12 +12,19 @@ import { JwtStrategy } from "../auth/jwt.strategy";
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: "sqlite",
-      database: process.env.DB_SQLITE_PATH ?? "./data/api.sqlite",
-      entities: [Task, Organization, Membership, AuditLog],
-      synchronize: true, // dev only
-      logging: false,
+    TypeOrmModule.forRootAsync({
+      // For simplicity, using `useFactory` to allow tests to override the DB path by setting the env var
+      useFactory: () => {
+        console.log("[AppModule] DB:", process.env.API_DB_SQLITE_PATH);
+
+        return {
+          type: "sqlite",
+          database: process.env.API_DB_SQLITE_PATH ?? "./data/api.sqlite",
+          entities: [Task, Organization, Membership, AuditLog],
+          synchronize: true, // dev only
+          logging: false,
+        };
+      },
     }),
     PassportModule.register({ defaultStrategy: "jwt" }),
     TasksModule,

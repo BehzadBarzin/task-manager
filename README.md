@@ -188,6 +188,18 @@ npm start
   nx run-many --target=serve --all --parallel
   ```
 
+### Test all apps
+
+```sh
+npm test
+```
+
+- This runs:
+
+  ```sh
+  nx run-many --target=test --all --parallel --verbose
+  ```
+
 ## Development Notes
 
 - After modifying backend APIs, **update Swagger decorators** if needed and re-generate types:

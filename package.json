@@ -4,6 +4,7 @@
   "license": "MIT",
   "scripts": {
     "start": "nx run-many --target=serve --all --parallel",
+    "test": "nx run-many --target=test --all --parallel --verbose",
     "generate:types": "node tools/generate-openapi-types.js"
   },
   "private": true,
@@ -26,10 +27,13 @@
     "@testing-library/react": "16.1.0",
     "@types/bcrypt": "^6.0.0",
     "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.0.0",
     "@types/passport-jwt": "^4.0.1",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
+    "@types/supertest": "^6.0.3",
+    "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^4.2.0",
     "@vitest/ui": "^3.0.0",
     "autoprefixer": "10.4.13",
@@ -75,6 +79,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "dotenv": "^17.2.1",
+    "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.539.0",
     "openapi-fetch": "^0.14.0",
@@ -87,8 +92,10 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "sqlite3": "^5.1.7",
+    "supertest": "^7.1.4",
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.25",
+    "uuid": "^11.1.0",
     "zod": "^4.0.17",
     "zustand": "^5.0.7"
   }
